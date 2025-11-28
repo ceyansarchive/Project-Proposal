@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* small tweaks for the dynamic dropoff rows */
+    .dropoff-row { display:flex; gap:8px; align-items:center; margin-bottom:0.6em; }
+    .dropoff-row input[type="text"], .dropoff-row input[type="number"] { flex:1; }
+    .mini-btn { padding:0.35em 0.6em; border-radius:6px; border:none; background:#e05b5b; color:white; cursor:pointer; font-size:0.9em; }
+    .mini-btn.secondary { background:#8FABD4; }
+    .small-label { font-size:0.9em; color:#8FABD4; font-weight:700; margin-bottom:0.2em; }
+    .dropoffs-container { margin-bottom:0.5em; }
+    .muted { color:#666; font-size:0.95em; }
+    .breakdown { font-size:0.95em; margin-top:0.6em; }
+  </style>
 </head>
 <body>
   <header>
@@ -17,14 +28,23 @@
         <label>Pickup Address</label>
         <input id="pickup" placeholder="e.g., 110 Timog Ave, Quezon City" />
       </div>
+
       <div class="form-row">
-        <label>Drop-off Address</label>
-        <input id="dropoff" placeholder="e.g., 10 Tandang Sora, Quezon City" />
+        <label class="small-label">Drop-offs</label>
+        <div class="dropoffs-container" id="dropoffsContainer">
+          <!-- dropoff rows will be inserted here by JS; there's one initial row on load -->
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="mini-btn secondary" id="addDropoffBtn">+ Add Drop-off</button>
+          <span class="muted">Each drop-off can have its own package weight</span>
+        </div>
       </div>
+
       <div class="form-row">
-        <label>Package Weight (kg)</label>
-        <input id="weight" type="number" min="0.1" step="0.1" placeholder="e.g., 2.5" />
+        <label>Default Package Weight (kg) — optional</label>
+        <input id="defaultWeight" type="number" min="0.0" step="0.1" placeholder="If left blank, weights per drop-off are used (or 0)" />
       </div>
+
       <div class="form-row">
         <label for="routePref">Route Preference</label>
         <select id="routePref">
@@ -32,12 +52,25 @@
           <option value="shortest">Shortest (Shortest Distance)</option>
         </select>
       </div>
-      <button onclick="setRoute()">Find Route</button>
+
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button onclick="setRoute()">Find Route</button>
+        <button type="button" id="clearBtn" class="mini-btn" style="background:#666;" onclick="clearAll()">Clear</button>
+      </div>
     </div>
+
     <div id="map"></div>
     <div class="card" id="output"></div>
   </main>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="Map.js"></script>
+  <script>
+    // Create initial dropoff row on load and wire add button
+    (function initDropoffsUI() {
+      document.getElementById('addDropoffBtn').addEventListener('click', addDropoffRow);
+      addDropoffRow(); // start with one drop-off row
+    })();
+  </script>
 </body>
 </html>
